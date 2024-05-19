@@ -8,14 +8,24 @@ const Calculator = () => {
 
   const handleClick = (e) => {
     let currentNumber = state.currentNumber;
-    const last = state.currentNumber.charAt(state.currentNumber.length - 1);
+    let last = state.currentNumber.charAt(state.currentNumber.length - 1);
     const historyLast = state.history.charAt(state.history.length - 1);
     const solution = state.isSolution;
+    const isClear = state.clear;
+
+    if (isClear && e.target.innerText !== "0") {
+      last = "";
+      currentNumber = "";
+      dispatch({ type: "NEXT_NUMBER" });
+      dispatch({ type: "CLEARS" });
+    }
+
     switch (e.target.innerText) {
       case "C":
         dispatch({ type: "NEXT_NUMBER" });
         dispatch({ type: "CLEAR" });
-
+        dispatch({ type: "ZERO" });
+        dispatch({ type: "CLEARS" });
         return;
       case "=":
         if (!solution && currentNumber !== "") {
@@ -25,7 +35,12 @@ const Calculator = () => {
           }
           const historyFix = state.history.replace(/x/g, "*");
           console.log(historyFix + currentNumber);
-          const s = eval(historyFix + currentNumber).toFixed(2);
+          let s = "0";
+          try {
+            s = eval(historyFix + currentNumber);
+          } catch (e) {
+            console.log(e);
+          }
           dispatch({ type: "HISTORY", payload: currentNumber + "=" + s });
           dispatch({ type: "NEXT_NUMBER" });
           dispatch({ type: "CURRENT_NUMBER", payload: s });
@@ -71,7 +86,7 @@ const Calculator = () => {
           dispatch({ type: "FLOAT", payload: false });
         }
         return;
-      case "×":
+      case "x":
         if (Number(currentNumber)) {
           if (last === ".") {
             currentNumber = currentNumber.slice(0, -1);
@@ -115,7 +130,11 @@ const Calculator = () => {
           dispatch({ type: "CURRENT_NUMBER", payload: "." });
         }
         return;
-
+      case "0":
+        if (currentNumber !== "0") {
+          dispatch({ type: "CURRENT_NUMBER", payload: e.target.innerText });
+        }
+        return;
       default:
         dispatch({ type: "CURRENT_NUMBER", payload: e.target.innerText });
     }
@@ -172,7 +191,7 @@ const Calculator = () => {
         $("#decimal").trigger("click");
         return;
       case "Enter":
-        $("#equal").trigger("click");
+        $("#equals").trigger("click");
         return;
       case "Backspace":
         $("#clear").trigger("click");
@@ -226,7 +245,7 @@ const Calculator = () => {
               }}
               className="btn btn-secondary"
             >
-              &times;
+              x
             </button>
           </div>
         </div>
@@ -358,7 +377,7 @@ const Calculator = () => {
           </div>
           <div className="col-3">
             <button
-              id="equal"
+              id="equals"
               onClick={(e) => {
                 handleClick(e);
               }}

@@ -10,6 +10,16 @@ const currentNumberReducer = (state = "By: David Wisseh", action) => {
       return "";
     case "REMOVE":
       return state.slice(0, -1);
+    case "ZERO":
+      return "0";
+    default:
+      return state;
+  }
+};
+const clearReducer = (state = true, action) => {
+  switch (action.type) {
+    case "CLEARS":
+      return !state;
     default:
       return state;
   }
@@ -59,6 +69,7 @@ const rootReducer = combineReducers({
   history: historyReducer,
   isFloat: floatReducer,
   isSolution: solutionReducer,
+  clear: clearReducer,
 });
 
 export default rootReducer;
