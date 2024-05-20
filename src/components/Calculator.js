@@ -7,139 +7,149 @@ const Calculator = () => {
   const state = useSelector((state) => state);
 
   const handleClick = (e) => {
-    let currentNumber = state.currentNumber;
-    let last = state.currentNumber.charAt(state.currentNumber.length - 1);
-    const historyLast = state.history.charAt(state.history.length - 1);
-    const solution = state.isSolution;
-    const isClear = state.clear;
-
-    if (isClear && e.target.innerText !== "0") {
-      last = "";
-      currentNumber = "";
-      dispatch({ type: "NEXT_NUMBER" });
-      dispatch({ type: "CLEARS" });
-    }
-
-    switch (e.target.innerText) {
-      case "C":
-        dispatch({ type: "NEXT_NUMBER" });
-        dispatch({ type: "CLEAR" });
-        dispatch({ type: "ZERO" });
-        dispatch({ type: "CLEARS" });
-        return;
-      case "=":
-        if (!solution && currentNumber !== "") {
-          if (last === ".") {
-            currentNumber = currentNumber.slice(0, -1);
-            dispatch({ type: "REMOVE" });
-          }
-          const historyFix = state.history.replace(/x/g, "*");
-          console.log(historyFix + currentNumber);
-          let s = "0";
-          try {
-            s = eval(historyFix + currentNumber);
-          } catch (e) {
-            console.log(e);
-          }
-          dispatch({ type: "HISTORY", payload: currentNumber + "=" + s });
-          dispatch({ type: "NEXT_NUMBER" });
-          dispatch({ type: "CURRENT_NUMBER", payload: s });
-          dispatch({ type: "SOLUTION" });
-          dispatch({ type: "FLOAT", payload: false });
-        }
-        return;
+    const value = e.target.innerText;
+    switch (value) {
       case "+":
-        if (Number(currentNumber)) {
-          if (last === ".") {
-            currentNumber = currentNumber.slice(0, -1);
-            dispatch({ type: "REMOVE" });
+        if (Number(state.currentNumber)) {
+          if (state.isSolution) {
+            dispatch({ type: "CLEAR_HISTORY" });
+            dispatch({ type: "SET_SOLUTION", payload: false });
           }
-          if (solution) {
-            dispatch({ type: "CLEAR" });
-            console.log("solution");
-            dispatch({ type: "SOLUTION" });
-          }
+
           dispatch({
-            type: "HISTORY",
-            payload: currentNumber + "+",
+            type: "ADD_TO_HISTORY",
+            payload: state.currentNumber + value,
           });
-          dispatch({ type: "NEXT_NUMBER" });
-          dispatch({ type: "FLOAT", payload: false });
+          dispatch({
+            type: "ADD_TO_FORMULA",
+            payload: state.currentNumber + value,
+          });
+          dispatch({ type: "CLEAR_DISPLAY" });
+          dispatch({ type: "SET_DECIMAL", payload: false });
+          dispatch({ type: "SET_SOLUTION", payload: false });
+        } else {
+          dispatch({
+            type: "REPLACE_LAST_IN_FORMULA",
+            payload: value,
+          });
+          dispatch({ type: "REPLACE_LAST_IN_HISTORY", payload: value });
+          dispatch({ type: "CLEAR_DISPLAY" });
         }
+
         return;
       case "-":
-        if (Number(currentNumber)) {
-          if (last === ".") {
-            currentNumber = currentNumber.slice(0, -1);
-            dispatch({ type: "REMOVE" });
-          }
-          if (solution) {
-            dispatch({ type: "CLEAR" });
-            console.log("solution");
-            dispatch({ type: "SOLUTION" });
+        if (!Number(state.currentNumber)) {
+          dispatch({ type: "SET_DISPLAY", payload: value });
+        } else {
+          if (state.currentNumber !== "-") {
+            if (state.isSolution) {
+              dispatch({ type: "CLEAR_HISTORY" });
+              dispatch({ type: "SET_SOLUTION", payload: false });
+            }
+            dispatch({
+              type: "ADD_TO_HISTORY",
+              payload: state.currentNumber + value,
+            });
           }
           dispatch({
-            type: "HISTORY",
-            payload: state.currentNumber + "-",
+            type: "ADD_TO_FORMULA",
+            payload: state.currentNumber + value,
           });
-          dispatch({ type: "NEXT_NUMBER" });
-          dispatch({ type: "FLOAT", payload: false });
+          dispatch({ type: "CLEAR_DISPLAY" });
+          dispatch({ type: "SET_DECIMAL", payload: false });
+          dispatch({ type: "SET_SOLUTION", payload: false });
         }
         return;
       case "x":
-        if (Number(currentNumber)) {
-          if (last === ".") {
-            currentNumber = currentNumber.slice(0, -1);
-            dispatch({ type: "REMOVE" });
-          }
-          if (solution) {
-            dispatch({ type: "CLEAR" });
-            console.log("solution");
-            dispatch({ type: "SOLUTION" });
+        if (Number(state.currentNumber)) {
+          if (state.isSolution) {
+            dispatch({ type: "CLEAR_HISTORY" });
+            dispatch({ type: "SET_SOLUTION", payload: false });
           }
           dispatch({
-            type: "HISTORY",
+            type: "ADD_TO_HISTORY",
             payload: state.currentNumber + "x",
           });
-          dispatch({ type: "NEXT_NUMBER" });
-          dispatch({ type: "FLOAT", payload: false });
+          dispatch({
+            type: "ADD_TO_FORMULA",
+            payload: state.currentNumber + "*",
+          });
+
+          dispatch({ type: "CLEAR_DISPLAY" });
+          dispatch({ type: "SET_DECIMAL", payload: false });
+          dispatch({ type: "SET_SOLUTION", payload: false });
+        } else {
+          dispatch({
+            type: "REPLACE_LAST_IN_FORMULA",
+            payload: value,
+          });
+          dispatch({ type: "REPLACE_LAST_IN_HISTORY", payload: value });
         }
         return;
       case "/":
-        if (Number(currentNumber)) {
-          if (last === ".") {
-            currentNumber = currentNumber.slice(0, -1);
-            dispatch({ type: "REMOVE" });
-          }
-          if (solution) {
-            dispatch({ type: "CLEAR" });
-            console.log("solution");
-            dispatch({ type: "SOLUTION" });
+        if (Number(state.currentNumber)) {
+          if (state.isSolution) {
+            dispatch({ type: "CLEAR_HISTORY" });
+            dispatch({ type: "SET_SOLUTION", payload: false });
           }
           dispatch({
-            type: "HISTORY",
+            type: "ADD_TO_HISTORY",
             payload: state.currentNumber + "/",
           });
-          dispatch({ type: "NEXT_NUMBER" });
-          dispatch({ type: "FLOAT", payload: false });
+          dispatch({
+            type: "ADD_TO_FORMULA",
+            payload: state.currentNumber + "/",
+          });
+          dispatch({ type: "CLEAR_DISPLAY" });
+          dispatch({ type: "SET_DECIMAL", payload: false });
+          dispatch({ type: "SET_SOLUTION", payload: false });
+        } else {
+          dispatch({
+            type: "REPLACE_LAST_IN_FORMULA",
+            payload: value,
+          });
+          dispatch({ type: "REPLACE_LAST_IN_HISTORY", payload: value });
+        }
+        return;
+      case "=":
+        if (!state.isSolution && Number(state.currentNumber)) {
+          const ans = eval(state.formula + state.currentNumber);
+          dispatch({ type: "SET_DISPLAY", payload: ans });
+          dispatch({
+            type: "ADD_TO_HISTORY",
+            payload: state.currentNumber + "=" + ans,
+          });
+          dispatch({ type: "CLEAR_FORMULA" });
+          dispatch({ type: "SET_SOLUTION", payload: true });
+          dispatch({ type: "SET_DECIMAL", payload: false });
         }
         return;
       case ".":
-        if (!state.isFloat) {
-          dispatch({ type: "FLOAT", payload: true });
-          dispatch({ type: "CURRENT_NUMBER", payload: "." });
+        if (!state.isDecimal) {
+          dispatch({ type: "ADD_TO_DISPLAY", payload: value });
+          dispatch({ type: "SET_DECIMAL", payload: true });
         }
         return;
-      case "0":
-        if (currentNumber !== "0") {
-          dispatch({ type: "CURRENT_NUMBER", payload: e.target.innerText });
-        }
+      case "C":
+        dispatch({ type: "CLEAR_DISPLAY" });
+        dispatch({ type: "CLEAR_FORMULA" });
+        dispatch({ type: "CLEAR_HISTORY" });
+        dispatch({ type: "SET_DECIMAL", payload: false });
+        dispatch({ type: "SET_SOLUTION", payload: false });
         return;
       default:
-        dispatch({ type: "CURRENT_NUMBER", payload: e.target.innerText });
-    }
+        if (state.isSolution) {
+          dispatch({ type: "SET_SOLUTION", payload: false });
+          dispatch({ type: "CLEAR_HISTORY" });
+          dispatch({ type: "SET_DISPLAY", payload: "" });
+        }
 
-    return;
+        dispatch({ type: "ADD_TO_DISPLAY", payload: value });
+        dispatch({ type: "SET_CLEAR", payload: false });
+        dispatch({ type: "SET_SOLUTION", payload: false });
+
+        return;
+    }
   };
 
   window.addEventListener("keydown", (e) => {
